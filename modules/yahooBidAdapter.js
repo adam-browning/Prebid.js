@@ -5,7 +5,7 @@ import {config} from '../src/config.js';
 // import { config } from '../src/config.js';
 
 const BIDDER_CODE = 'yahoo';
-
+// const ADAPTER_VERSION = '1.0.0'
 const BID_RESPONSE_TTL = 3600;
 const DEFAULT_CURRENCY = 'USD';
 const SUPPORTED_USER_ID_SOURCES = [
