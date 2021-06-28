@@ -4,7 +4,7 @@ import * as utils from '../src/utils.js';
 import {config} from '../src/config.js';
 // import { config } from '../src/config.js';
 
-const BIDDER_CODE = 'verizonMedia';
+const BIDDER_CODE = 'yahoo';
 
 const BID_RESPONSE_TTL = 3600;
 const DEFAULT_CURRENCY = 'USD';
@@ -145,7 +145,7 @@ function appendImpObject(bid, openRtbObject) {
 
 function generateServerRequest({payload, requestOptions}) {
   return {
-    url: config.getConfig('verizonMedia.endpoint') || SSP_ENDPOINT,
+    url: config.getConfig('yahoo.endpoint') || SSP_ENDPOINT,
     method: 'POST',
     data: payload,
     options: requestOptions
@@ -180,7 +180,7 @@ export const spec = {
       return Object.keys(bid.mediaTypes).includes(BANNER);
     });
 
-    if (config.getConfig('verizonMedia.singleRequestMode') === true) {
+    if (config.getConfig('yahoo.singleRequestMode') === true) {
       filteredBidRequests.forEach(bid => {
         appendImpObject(bid, payload);
       });

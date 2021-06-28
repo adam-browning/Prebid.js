@@ -2,7 +2,7 @@ import {expect} from 'chai';
 // import * as utils from 'src/utils.js';
 import { config } from 'src/config.js';
 import { BANNER, VIDEO } from 'src/mediaTypes.js';
-import {spec} from 'modules/verizonMediaBidAdapter.js';
+import {spec} from 'modules/yahooBidAdapter.js';
 
 const AD_CONTENT = '<script>logInfo(\'ad\');</script>';
 const DEFAULT_BID_ID = '84ab500420319d';
@@ -13,7 +13,7 @@ let generateBidObject = ({bidId, pos, adUnitCode}) => {
   return {
     adUnitCode,
     auctionId: 'b06c5141-fe8f-4cdf-9d7d-54415490a917',
-    bidder: 'verizonmedia',
+    bidder: 'yahoo',
     bidId,
     bidderRequestId: '7101db09af0db2',
     mediaTypes: {
@@ -31,7 +31,7 @@ let generateBidObject = ({bidId, pos, adUnitCode}) => {
 
 let getDefaultBidRequest = () => {
   return {
-    bidderCode: 'verizonmedia',
+    bidderCode: 'yahoo',
     auctionId: 'd3e07445-ab06-44c8-a9dd-5ef9af06d2a6',
     bidderRequestId: '7101db09af0db2',
     start: new Date().getTime(),
@@ -47,7 +47,7 @@ let getDefaultBidderRequest = () => {
   return {
     auctionId: 'b06c5141-fe8f-4cdf-9d7d-54415490a917',
     auctionStart: new Date().getTime(),
-    bidderCode: 'verizonmedia',
+    bidderCode: 'yahoo',
     bidderRequestId: '15246a574e859f',
     bids: getDefaultBidRequest().bids,
     gdprConsent: {
@@ -229,7 +229,7 @@ describe.only('Verizon Media Bid Adapter', () => {
         it('should return request objects that make a POST request to the override endpoint', () => {
           const testOverrideEndpoint = 'http://foo.bar.baz.com/bidRequest';
           config.setConfig({
-            verizonMedia: {
+            yahoo: {
               endpoint: testOverrideEndpoint
             }
           });
@@ -242,7 +242,7 @@ describe.only('Verizon Media Bid Adapter', () => {
 
         it('should return a single request object for single request mode', () => {
           config.setConfig({
-            verizonMedia: {
+            yahoo: {
               singleRequestMode: true
             }
           });
