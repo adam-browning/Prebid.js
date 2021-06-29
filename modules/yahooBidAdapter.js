@@ -4,7 +4,7 @@ import * as utils from '../src/utils.js';
 import { config } from '../src/config.js';
 import { version } from '../package.json';
 
-const BIDDER_CODE = 'yahoo';
+const BIDDER_CODE = 'yahooAdTech';
 const ADAPTER_VERSION = '1.0.0';
 const PREBID_VERSION = version;
 const BID_RESPONSE_TTL = 3600;
@@ -13,6 +13,7 @@ const SUPPORTED_USER_ID_SOURCES = [
   'verizonmedia.com',
   'liveramp.com'
 ];
+utils.logInfo('+++ config: ', config);
 /*
 // TODO(request SSP team add support for passing this
 const BIDDING_SOURCE = {
