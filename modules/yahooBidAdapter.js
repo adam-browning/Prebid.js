@@ -1,11 +1,12 @@
 import { registerBidder } from '../src/adapters/bidderFactory.js';
 import { BANNER, VIDEO } from '../src/mediaTypes.js';
 import * as utils from '../src/utils.js';
-import {config} from '../src/config.js';
-// import { config } from '../src/config.js';
+import { config } from '../src/config.js';
+import { version } from '../package.json';
 
 const BIDDER_CODE = 'yahoo';
-const ADAPTER_VERSION = '1.0.0'
+const ADAPTER_VERSION = '1.0.0';
+const PREBID_VERSION = version;
 const BID_RESPONSE_TTL = 3600;
 const DEFAULT_CURRENCY = 'USD';
 const SUPPORTED_USER_ID_SOURCES = [
@@ -87,6 +88,7 @@ function getSupportedEids(bid) {
 }
 
 function generateOpenRtbObject(bidderRequest) {
+  utils.logInfo('+++ generateOpenRtbObject / bidderRequest: ', bidderRequest);
   if (bidderRequest) {
     return {
       id: bidderRequest.auctionId,
@@ -107,7 +109,9 @@ function generateOpenRtbObject(bidderRequest) {
       },
       source: {
         ext: {
-          hb: 1
+          hb: 1,
+          adapterver: ADAPTER_VERSION,
+          prebidver: PREBID_VERSION
         },
         fd: 1
       },
@@ -127,6 +131,8 @@ function generateOpenRtbObject(bidderRequest) {
 }
 
 function appendImpObject(bid, openRtbObject) {
+  utils.logInfo('+++ appendImpObject / bid: ', bid);
+  utils.logInfo('+++ appendImpObject / openRtbObject: ', openRtbObject);
   if (openRtbObject && bid) {
     openRtbObject.imp.push({
       id: bid.bidId,
@@ -144,6 +150,8 @@ function appendImpObject(bid, openRtbObject) {
 }
 
 function generateServerRequest({payload, requestOptions}) {
+  utils.logInfo('+++ generateServerRequest / payload: ', payload);
+  utils.logInfo('+++ generateServerRequest / requestOptions: ', requestOptions);
   return {
     url: config.getConfig('yahoo.endpoint') || SSP_ENDPOINT,
     method: 'POST',
@@ -159,6 +167,7 @@ export const spec = {
   supportedMediaTypes: [BANNER, VIDEO],
 
   isBidRequestValid: function(bid) {
+    utils.logInfo('+++ isBidRequestValid / bid: ', bid);
     const params = bid.params;
     return (typeof params === 'object' &&
         typeof params.dcn === 'string' && params.dcn.length > 0 &&
