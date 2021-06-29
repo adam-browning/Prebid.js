@@ -1,11 +1,11 @@
 import { registerBidder } from '../src/adapters/bidderFactory.js';
-import { BANNER } from '../src/mediaTypes.js';
+import { BANNER, VIDEO } from '../src/mediaTypes.js';
 import * as utils from '../src/utils.js';
 import {config} from '../src/config.js';
 // import { config } from '../src/config.js';
 
 const BIDDER_CODE = 'yahoo';
-// const ADAPTER_VERSION = '1.0.0'
+const ADAPTER_VERSION = '1.0.0'
 const BID_RESPONSE_TTL = 3600;
 const DEFAULT_CURRENCY = 'USD';
 const SUPPORTED_USER_ID_SOURCES = [
@@ -156,7 +156,7 @@ function generateServerRequest({payload, requestOptions}) {
 export const spec = {
   code: BIDDER_CODE,
   aliases: [],
-  supportedMediaTypes: [BANNER],
+  supportedMediaTypes: [BANNER, VIDEO],
 
   isBidRequestValid: function(bid) {
     const params = bid.params;
