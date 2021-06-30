@@ -110,9 +110,7 @@ function generateOpenRtbObject(bidderRequest) {
       },
       source: {
         ext: {
-          hb: 1,
-          adapterver: ADAPTER_VERSION,
-          prebidver: PREBID_VERSION
+          hb: 1
         },
         fd: 1
       },
@@ -144,7 +142,10 @@ function appendImpObject(bid, openRtbObject) {
       },
       ext: {
         pos: bid.params.pos,
-        dfp_ad_unit_code: bid.adUnitCode
+        dfp_ad_unit_code: bid.adUnitCode,
+        hb: 1,
+        adapterver: ADAPTER_VERSION,
+        prebidver: PREBID_VERSION
       }
     });
   }

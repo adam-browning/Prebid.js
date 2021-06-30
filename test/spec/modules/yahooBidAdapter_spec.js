@@ -3,6 +3,7 @@ import {expect} from 'chai';
 import { config } from 'src/config.js';
 import { BANNER, VIDEO } from 'src/mediaTypes.js';
 import {spec} from 'modules/yahooBidAdapter.js';
+import { version } from '../../../package.json';
 
 const AD_CONTENT = '<script>logInfo(\'ad\');</script>';
 const DEFAULT_BID_ID = '84ab500420319d';
@@ -190,6 +191,9 @@ describe.only('Yahoo Ad Tech Bid Adapter', () => {
             ext: {
               pos: bid.params.pos,
               dfp_ad_unit_code: DEFAULT_AD_UNIT_CODE,
+              hb: 1,
+              adapterver: '1.0.0',
+              prebidver: version
             }
           }],
           site: {
@@ -209,8 +213,6 @@ describe.only('Yahoo Ad Tech Bid Adapter', () => {
           source: {
             ext: {
               hb: 1,
-              adapterver: '1.0.0',
-              prebidver: '4.29.0-pre'
             },
             fd: 1
           },
