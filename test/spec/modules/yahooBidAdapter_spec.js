@@ -13,7 +13,7 @@ let generateBidObject = ({bidId, pos, adUnitCode}) => {
   return {
     adUnitCode,
     auctionId: 'b06c5141-fe8f-4cdf-9d7d-54415490a917',
-    bidder: 'yahooAdTech',
+    bidder: 'yahoo',
     bidId,
     bidderRequestId: '7101db09af0db2',
     mediaTypes: {
@@ -31,7 +31,7 @@ let generateBidObject = ({bidId, pos, adUnitCode}) => {
 
 let getDefaultBidRequest = () => {
   return {
-    bidderCode: 'yahooAdTech',
+    bidderCode: 'yahoo',
     auctionId: 'd3e07445-ab06-44c8-a9dd-5ef9af06d2a6',
     bidderRequestId: '7101db09af0db2',
     start: new Date().getTime(),
@@ -47,7 +47,7 @@ let getDefaultBidderRequest = () => {
   return {
     auctionId: 'b06c5141-fe8f-4cdf-9d7d-54415490a917',
     auctionStart: new Date().getTime(),
-    bidderCode: 'yahooAdTech',
+    bidderCode: 'yahoo',
     bidderRequestId: '15246a574e859f',
     bids: getDefaultBidRequest().bids,
     gdprConsent: {

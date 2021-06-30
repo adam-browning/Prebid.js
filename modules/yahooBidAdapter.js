@@ -4,7 +4,7 @@ import * as utils from '../src/utils.js';
 import { config } from '../src/config.js';
 import { version } from '../package.json';
 
-const BIDDER_CODE = 'yahooAdTech';
+const BIDDER_CODE = 'yahoo';
 const ADAPTER_VERSION = '1.0.0';
 const PREBID_VERSION = version;
 const BID_RESPONSE_TTL = 3600;
