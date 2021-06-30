@@ -13,7 +13,7 @@ const SUPPORTED_USER_ID_SOURCES = [
   'verizonmedia.com',
   'liveramp.com'
 ];
-utils.logInfo('+++ config: ', config);
+utils.logWarn('+++ config: ', config);
 /*
 // TODO(request SSP team add support for passing this
 const BIDDING_SOURCE = {
@@ -89,7 +89,7 @@ function getSupportedEids(bid) {
 }
 
 function generateOpenRtbObject(bidderRequest) {
-  utils.logInfo('+++ generateOpenRtbObject / bidderRequest: ', bidderRequest);
+  utils.logWarn('+++ generateOpenRtbObject / bidderRequest: ', bidderRequest);
   if (bidderRequest) {
     return {
       id: bidderRequest.auctionId,
@@ -132,8 +132,8 @@ function generateOpenRtbObject(bidderRequest) {
 }
 
 function appendImpObject(bid, openRtbObject) {
-  utils.logInfo('+++ appendImpObject / bid: ', bid);
-  utils.logInfo('+++ appendImpObject / openRtbObject: ', openRtbObject);
+  utils.logWarn('+++ appendImpObject / bid: ', bid);
+  utils.logWarn('+++ appendImpObject / openRtbObject: ', openRtbObject);
   if (openRtbObject && bid) {
     openRtbObject.imp.push({
       id: bid.bidId,
@@ -151,8 +151,8 @@ function appendImpObject(bid, openRtbObject) {
 }
 
 function generateServerRequest({payload, requestOptions}) {
-  utils.logInfo('+++ generateServerRequest / payload: ', payload);
-  utils.logInfo('+++ generateServerRequest / requestOptions: ', requestOptions);
+  utils.logWarn('+++ generateServerRequest / payload: ', payload);
+  utils.logWarn('+++ generateServerRequest / requestOptions: ', requestOptions);
   return {
     url: config.getConfig('yahoo.endpoint') || SSP_ENDPOINT,
     method: 'POST',
@@ -168,7 +168,7 @@ export const spec = {
   supportedMediaTypes: [BANNER, VIDEO],
 
   isBidRequestValid: function(bid) {
-    utils.logInfo('+++ isBidRequestValid / bid: ', bid);
+    utils.logWarn('+++ isBidRequestValid / bid: ', bid);
     const params = bid.params;
     return (typeof params === 'object' &&
         typeof params.dcn === 'string' && params.dcn.length > 0 &&
