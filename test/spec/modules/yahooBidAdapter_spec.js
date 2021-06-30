@@ -3,12 +3,14 @@ import {expect} from 'chai';
 import { config } from 'src/config.js';
 import { BANNER, VIDEO } from 'src/mediaTypes.js';
 import {spec} from 'modules/yahooBidAdapter.js';
-import { version } from '../../../package.json';
+import { version as pbjsVersion } from '../package.json';
 
 const AD_CONTENT = '<script>logInfo(\'ad\');</script>';
 const DEFAULT_BID_ID = '84ab500420319d';
 const DEFAULT_BID_POS = 'header';
 const DEFAULT_AD_UNIT_CODE = '/19968336/header-bid-tag-1';
+const ADAPTER_VERSION = '1.0.0';
+const PREBID_VERSION = pbjsVersion;
 
 let generateBidObject = ({bidId, pos, adUnitCode}) => {
   return {
@@ -192,8 +194,8 @@ describe.only('Yahoo Ad Tech Bid Adapter', () => {
               pos: bid.params.pos,
               dfp_ad_unit_code: DEFAULT_AD_UNIT_CODE,
               hb: 1,
-              adapterver: '1.0.0',
-              prebidver: version
+              adapterver: ADAPTER_VERSION,
+              prebidver: PREBID_VERSION
             }
           }],
           site: {
@@ -264,14 +266,20 @@ describe.only('Yahoo Ad Tech Bid Adapter', () => {
             id: DEFAULT_BID_ID,
             ext: {
               pos: DEFAULT_BID_POS,
-              dfp_ad_unit_code: DEFAULT_AD_UNIT_CODE
+              dfp_ad_unit_code: DEFAULT_AD_UNIT_CODE,
+              hb: 1,
+              adapterver: ADAPTER_VERSION,
+              prebidver: PREBID_VERSION
             }
           });
           expect(output.data.imp[1]).to.deep.include({
             id: secondBidId,
             ext: {
               pos: secondBidPos,
-              dfp_ad_unit_code: secondAdUnitCode
+              dfp_ad_unit_code: secondAdUnitCode,
+              hb: 1,
+              adapterver: ADAPTER_VERSION,
+              prebidver: PREBID_VERSION
             }
           });
         });

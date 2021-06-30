@@ -2,11 +2,11 @@ import { registerBidder } from '../src/adapters/bidderFactory.js';
 import { BANNER, VIDEO } from '../src/mediaTypes.js';
 import * as utils from '../src/utils.js';
 import { config } from '../src/config.js';
-import { version } from '../package.json';
+import { version as pbjsVersion } from '../package.json';
 
 const BIDDER_CODE = 'yahoo';
 const ADAPTER_VERSION = '1.0.0';
-const PREBID_VERSION = version;
+const PREBID_VERSION = pbjsVersion;
 const BID_RESPONSE_TTL = 3600;
 const DEFAULT_CURRENCY = 'USD';
 const SUPPORTED_USER_ID_SOURCES = [
@@ -188,6 +188,7 @@ export const spec = {
 
     const payload = generateOpenRtbObject(bidderRequest);
     const filteredBidRequests = validBidRequests.filter(bid => {
+      utils.logWarn('+++ ', Object.keys(bid.mediaTypes).includes(BANNER));
       return Object.keys(bid.mediaTypes).includes(BANNER);
     });
 
