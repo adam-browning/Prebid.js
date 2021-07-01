@@ -3,7 +3,7 @@ import {expect} from 'chai';
 import { config } from 'src/config.js';
 import { BANNER, VIDEO } from 'src/mediaTypes.js';
 import {spec} from 'modules/yahooBidAdapter.js';
-import { version as pbjsVersion } from '../package.json';
+import { version as pbjsVersion } from '../../../package.json';
 
 const AD_CONTENT = '<script>logInfo(\'ad\');</script>';
 const DEFAULT_BID_ID = '84ab500420319d';

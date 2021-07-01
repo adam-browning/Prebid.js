@@ -188,9 +188,10 @@ export const spec = {
 
     const payload = generateOpenRtbObject(bidderRequest);
     const filteredBidRequests = validBidRequests.filter(bid => {
-      utils.logWarn('+++ ', Object.keys(bid.mediaTypes).includes(BANNER));
-      return Object.keys(bid.mediaTypes).includes(BANNER);
+      utils.logWarn('+++ BANNER/VIDEO', Object.keys(bid.mediaTypes).includes(BANNER || VIDEO));
+      return Object.keys(bid.mediaTypes).includes(BANNER || VIDEO);
     });
+    utils.logWarn('+++ filteredBidRequests: ', filteredBidRequests);
 
     if (config.getConfig('yahoo.singleRequestMode') === true) {
       filteredBidRequests.forEach(bid => {
