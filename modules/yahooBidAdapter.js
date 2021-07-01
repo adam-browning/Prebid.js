@@ -133,6 +133,9 @@ function appendImpObject(bid, openRtbObject) {
   utils.logWarn('+++ appendImpObject / bid: ', bid);
   utils.logWarn('+++ appendImpObject / openRtbObject: ', openRtbObject);
   if (openRtbObject && bid) {
+  //TODO
+
+
     openRtbObject.imp.push({
       id: bid.bidId,
       tagid: bid.params.pos,
@@ -187,11 +190,11 @@ export const spec = {
     requestOptions.withCredentials = hasPurpose1Consent(bidderRequest);
 
     const payload = generateOpenRtbObject(bidderRequest);
+    utils.logWarn('+++ buildRequests/generateOpenRtbObject/payload : ', payload);
+
     const filteredBidRequests = validBidRequests.filter(bid => {
-      utils.logWarn('+++ BANNER/VIDEO', Object.keys(bid.mediaTypes).includes(BANNER || VIDEO));
-      return Object.keys(bid.mediaTypes).includes(BANNER || VIDEO);
+      return bid.mediaTypes.every(item => item.hasOwnProperty(BANNER) || item.hasOwnProperty(VIDEO));
     });
-    utils.logWarn('+++ filteredBidRequests: ', filteredBidRequests);
 
     if (config.getConfig('yahoo.singleRequestMode') === true) {
       filteredBidRequests.forEach(bid => {

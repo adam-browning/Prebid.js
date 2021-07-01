@@ -130,15 +130,16 @@ describe.only('Yahoo Ad Tech Bid Adapter', () => {
         expect(request).to.be.undefined;
       });
 
-      it('should not return request when bids are not for display ads', function () {
-        validBidRequests[0].mediaTypes = {};
-        validBidRequests[0].mediaTypes[VIDEO] = {
-          playerSize: [640, 480],
-          context: 'instream'
-        };
-        let [request] = spec.buildRequests(validBidRequests, bidderRequest);
-        expect(request).to.be.undefined;
-      });
+      // TODO: need to remove this test
+      // it('should not return request when bids are not for display ads', function () {
+      //   validBidRequests[0].mediaTypes = {};
+      //   validBidRequests[0].mediaTypes[VIDEO] = {
+      //     playerSize: [640, 480],
+      //     context: 'instream'
+      //   };
+      //   let [request] = spec.buildRequests(validBidRequests, bidderRequest);
+      //   expect(request).to.be.undefined;
+      // });
 
       it('should return an array with the correct amount of request objects', () => {
         expect(spec.buildRequests(validBidRequests, bidderRequest)).to.be.an('array').to.have.lengthOf(1);
