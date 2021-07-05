@@ -149,11 +149,11 @@ function appendImpObject(bid, openRtbObject) {
     if (bid.mediaTypes.banner && (bid.params.banner || bid.params)) {
       impObject.tagid = bid.params.banner.pos || bid.params.pos;
       impObject.ext.pos = bid.params.banner.pos || bid.params.pos;
-      openRtbObject.site.id = bid.params.banner.dcn || bid.params.dcn;
       impObject.banner = {
         mimes: ['text/html', 'text/javascript', 'application/javascript', 'image/jpg'],
         format: transformSizes(bid.sizes)
       }
+      openRtbObject.site.id = bid.params.banner.dcn || bid.params.dcn;
       // TODO remove after testing
       utils.logWarn('+++ Step 10.A :: banner obj created');
     };
@@ -161,11 +161,11 @@ function appendImpObject(bid, openRtbObject) {
     if (bid.mediaTypes.video && (bid.params.video || bid.params)) {
       impObject.tagid = bid.params.video.pos || bid.params.pos;
       impObject.ext.pos = bid.params.video.pos || bid.params.pos;
-      openRtbObject.site.id = bid.params.video.dcn || bid.params.dcn;
       impObject.video = {
         mimes: bid.mediaTypes.video.mimes || ['video/mp4', 'application/javascript'],
         format: transformSizes(bid.mediaTypes.video.playerSize)
       }
+      openRtbObject.site.id = bid.params.video.dcn || bid.params.dcn;
       // TODO remove after testing
       utils.logWarn('+++ Step 10.B :: video obj created');
     };
@@ -177,6 +177,17 @@ function appendImpObject(bid, openRtbObject) {
 };
 
 function generateServerRequest({payload, requestOptions}) {
+  // TODO handle how to multi-format adUnit together with singleRequestMode
+  if () {
+    // multiFormat=true && requestMode=singe --> 1 adUnit(banner && video), 1 bid, 2 imps
+    // multiFormat=false && requestMode=single -->  1 adUnit (banner || video), 1 bid, 1 imp
+    // multiFormat=false && requestMode=multi --> 2 adUnits, 2 bids, 1 imp each
+    // multiFormat=true && requestMode=multi --> 2 adUnits, 2 bids, 1 imp each
+
+  }
+
+
+  utils.logWarn('+++ Step 11:  generateServerRequest ');
   return {
     url: config.getConfig('yahoo.endpoint') || SSP_ENDPOINT,
     method: 'POST',
