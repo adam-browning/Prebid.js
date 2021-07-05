@@ -28,3 +28,7 @@ Module that connects to Yahoo Ad Tech supply-side system.
         }
     ];
 ```
+
+TODO ## Single vs Mutliple Request Modes......
+
+

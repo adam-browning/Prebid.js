@@ -13,7 +13,6 @@ const SUPPORTED_USER_ID_SOURCES = [
   'verizonmedia.com',
   'liveramp.com'
 ];
-utils.logWarn('+++ config: ', config);
 /*
 // TODO(request SSP team add support for passing this
 const BIDDING_SOURCE = {
@@ -26,6 +25,7 @@ const SSP_ENDPOINT = 'https://c2shb.ssp.yahoo.com/bidRequest';
 
 /* Utility functions */
 function hasPurpose1Consent(bidderRequest) {
+  utils.logWarn('+++ STEP 3: hasPurpose1Consent()');
   if (bidderRequest && bidderRequest.gdprConsent) {
     if (bidderRequest.gdprConsent.gdprApplies && bidderRequest.gdprConsent.apiVersion === 2) {
       return !!(utils.deepAccess(bidderRequest.gdprConsent, 'vendorData.purpose.consents.1') === true);
@@ -35,6 +35,7 @@ function hasPurpose1Consent(bidderRequest) {
 }
 
 function getSize(size) {
+  utils.logWarn('+++ STEP 9: getSizes()');
   return {
     w: parseInt(size[0]),
     h: parseInt(size[1])
@@ -42,6 +43,7 @@ function getSize(size) {
 }
 
 function transformSizes(sizes) {
+  utils.logWarn('+++ STEP 8: transformSizes()');
   if (utils.isArray(sizes) && sizes.length === 2 && !utils.isArray(sizes[0])) {
     return [ getSize(sizes) ];
   }
@@ -49,6 +51,7 @@ function transformSizes(sizes) {
 }
 
 function extractUserSyncUrls(syncOptions, pixels) {
+  utils.logWarn('+++ STEP 10: extractUserSyncUrls()');
   let itemsRegExp = /(img|iframe)[\s\S]*?src\s*=\s*("|')(.*?)\2/gi;
   let tagNameRegExp = /\w*(?=\s)/;
   let srcRegExp = /src=("|')(.*?)\1/;
@@ -80,6 +83,7 @@ function extractUserSyncUrls(syncOptions, pixels) {
 }
 
 function getSupportedEids(bid) {
+  utils.logWarn('+++ STEP 5: getSupportedEids');
   if (utils.isArray(bid.userIdAsEids)) {
     return bid.userIdAsEids.filter(eid => {
       return SUPPORTED_USER_ID_SOURCES.indexOf(eid.source) !== -1;
@@ -89,13 +93,13 @@ function getSupportedEids(bid) {
 }
 
 function generateOpenRtbObject(bidderRequest) {
-  utils.logWarn('+++ generateOpenRtbObject / bidderRequest: ', bidderRequest);
+  // TODO remove after testing
+  utils.logWarn('+++ STEP 4: generateOpenRtbObject() :: bidderReques ', bidderRequest);
   if (bidderRequest) {
     return {
       id: bidderRequest.auctionId,
       imp: [],
       site: {
-        id: bidderRequest.bids[0].params.dcn,
         page: bidderRequest.refererInfo.referer
       },
       device: {
@@ -130,33 +134,49 @@ function generateOpenRtbObject(bidderRequest) {
 }
 
 function appendImpObject(bid, openRtbObject) {
-  utils.logWarn('+++ appendImpObject / bid: ', bid);
-  utils.logWarn('+++ appendImpObject / openRtbObject: ', openRtbObject);
+  utils.logWarn('+++ STEP 7: appendImpObject');
   if (openRtbObject && bid) {
-  //TODO
-
-
-    openRtbObject.imp.push({
+    const impObject = {
       id: bid.bidId,
-      tagid: bid.params.pos,
-      banner: {
-        mimes: ['text/html', 'text/javascript', 'application/javascript', 'image/jpg'],
-        format: transformSizes(bid.sizes)
-      },
       ext: {
-        pos: bid.params.pos,
         dfp_ad_unit_code: bid.adUnitCode,
         hb: 1,
         adapterver: ADAPTER_VERSION,
         prebidver: PREBID_VERSION
       }
-    });
+    };
+
+    if (bid.mediaTypes.banner && (bid.params.banner || bid.params)) {
+      impObject.tagid = bid.params.banner.pos || bid.params.pos;
+      impObject.ext.pos = bid.params.banner.pos || bid.params.pos;
+      openRtbObject.site.id = bid.params.banner.dcn || bid.params.dcn;
+      impObject.banner = {
+        mimes: ['text/html', 'text/javascript', 'application/javascript', 'image/jpg'],
+        format: transformSizes(bid.sizes)
+      }
+      // TODO remove after testing
+      utils.logWarn('+++ Step 10.A :: banner obj created');
+    };
+
+    if (bid.mediaTypes.video && (bid.params.video || bid.params)) {
+      impObject.tagid = bid.params.video.pos || bid.params.pos;
+      impObject.ext.pos = bid.params.video.pos || bid.params.pos;
+      openRtbObject.site.id = bid.params.video.dcn || bid.params.dcn;
+      impObject.video = {
+        mimes: bid.mediaTypes.video.mimes || ['video/mp4', 'application/javascript'],
+        format: transformSizes(bid.mediaTypes.video.playerSize)
+      }
+      // TODO remove after testing
+      utils.logWarn('+++ Step 10.B :: video obj created');
+    };
+    openRtbObject.imp.push(impObject);
+    // TODO remove after testing
+    utils.logWarn('+++ Step 10.C() :: bid ', bid);
+    utils.logWarn('+++ Step 10.D() :: openRtbObject: ', openRtbObject);
   }
-}
+};
 
 function generateServerRequest({payload, requestOptions}) {
-  utils.logWarn('+++ generateServerRequest / payload: ', payload);
-  utils.logWarn('+++ generateServerRequest / requestOptions: ', requestOptions);
   return {
     url: config.getConfig('yahoo.endpoint') || SSP_ENDPOINT,
     method: 'POST',
@@ -172,14 +192,18 @@ export const spec = {
   supportedMediaTypes: [BANNER, VIDEO],
 
   isBidRequestValid: function(bid) {
-    utils.logWarn('+++ isBidRequestValid / bid: ', bid);
-    const params = bid.params;
-    return (typeof params === 'object' &&
-        typeof params.dcn === 'string' && params.dcn.length > 0 &&
-        typeof params.pos === 'string' && params.pos.length > 0);
+    // const params = bid.params;
+    // return (typeof params === 'object' &&
+    //     typeof params.dcn === 'string' && params.dcn.length > 0 &&
+    //     typeof params.pos === 'string' && params.pos.length > 0);
+    // TODO override validations for testing
+    utils.logWarn('+++ Step 1: isBidRequestValid: ', config);
+    return true;
   },
 
   buildRequests: function(validBidRequests, bidderRequest) {
+    // TODO remove after tesing
+    utils.logWarn('+++ STEP 2: buildRequests:');
     const requestOptions = {
       contentType: 'application/json',
       customHeaders: {
@@ -188,21 +212,21 @@ export const spec = {
     };
 
     requestOptions.withCredentials = hasPurpose1Consent(bidderRequest);
-
     const payload = generateOpenRtbObject(bidderRequest);
-    utils.logWarn('+++ buildRequests/generateOpenRtbObject/payload : ', payload);
 
     const filteredBidRequests = validBidRequests.filter(bid => {
-      return bid.mediaTypes.every(item => item.hasOwnProperty(BANNER) || item.hasOwnProperty(VIDEO));
+      return Object.keys(bid.mediaTypes).some(item => item === BANNER || item === VIDEO);
     });
 
     if (config.getConfig('yahoo.singleRequestMode') === true) {
       filteredBidRequests.forEach(bid => {
         appendImpObject(bid, payload);
       });
+      utils.logWarn('+++ STEP 6.A singleRequestMode: filteredBidRequests: ', filteredBidRequests);
       return generateServerRequest({payload, requestOptions});
     }
-
+    // TODO remove after testing
+    utils.logWarn('+++ STEP 6.B multipleRequest mode: filteredBidRequests: ', filteredBidRequests);
     return filteredBidRequests.map(bid => {
       let payloadClone = utils.deepClone(payload);
       appendImpObject(bid, payloadClone);
@@ -211,6 +235,7 @@ export const spec = {
   },
 
   interpretResponse: function(serverResponse, bidRequest) {
+    utils.logWarn('+++ STEP 5: interpretResponse: ');
     const response = [];
     if (!serverResponse.body || !Array.isArray(serverResponse.body.seatbid)) {
       return response;
