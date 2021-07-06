@@ -13,13 +13,6 @@ const SUPPORTED_USER_ID_SOURCES = [
   'verizonmedia.com',
   'liveramp.com'
 ];
-/*
-// TODO(request SSP team add support for passing this
-const BIDDING_SOURCE = {
-  name: 'pbjs',
-  version: '$prebid.version$'
-};
-*/
 
 const SSP_ENDPOINT = 'https://c2shb.ssp.yahoo.com/bidRequest';
 
@@ -176,16 +169,36 @@ function appendImpObject(bid, openRtbObject) {
   }
 };
 
+function singleRequestModeState() {
+  return config.getConfig('yahoo.singleRequestMode') === true;
+};
+
+function getDcnPosOverrideState() {
+  if (bid.params.banner || bid.params.video) {
+    return true;
+  };
+  return false;
+};
+
 function generateServerRequest({payload, requestOptions}) {
   // TODO handle how to multi-format adUnit together with singleRequestMode
-  if () {
-    // multiFormat=true && requestMode=singe --> 1 adUnit(banner && video), 1 bid, 2 imps
-    // multiFormat=false && requestMode=single -->  1 adUnit (banner || video), 1 bid, 1 imp
-    // multiFormat=false && requestMode=multi --> 2 adUnits, 2 bids, 1 imp each
-    // multiFormat=true && requestMode=multi --> 2 adUnits, 2 bids, 1 imp each
+  if (singleRequestModeState() === true && getDcnPosOverrideState() === false) {
+    // single no overrides
+    // 1 bid, 1 imp, 1 format (banner)
+  };
 
-  }
+  if (singleRequestModeState() === true && getDcnPosOverrideState() === true) {
+    // Single with Override
+    //
+  };
 
+  if (singleRequestModeState() === false && getDcnPosOverrideState() === false) {
+    // mutliple no overrides
+  };
+
+  if (singleRequestModeState() === true && getDcnPosOverrideState() === true) {
+    // mutliple With override
+  };
 
   utils.logWarn('+++ Step 11:  generateServerRequest ');
   return {
