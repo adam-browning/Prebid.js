@@ -18,9 +18,6 @@ const SSP_ENDPOINT = 'https://c2shb.ssp.yahoo.com/bidRequest';
 
 /* Utility functions */
 function hasPurpose1Consent(bidderRequest) {
-  // TODO remove after testing =================================================
-  utils.logWarn('+++ STEP 3: hasPurpose1Consent()');
-  // TODO ======================================================================
   if (bidderRequest && bidderRequest.gdprConsent) {
     if (bidderRequest.gdprConsent.gdprApplies && bidderRequest.gdprConsent.apiVersion === 2) {
       return !!(utils.deepAccess(bidderRequest.gdprConsent, 'vendorData.purpose.consents.1') === true);
@@ -30,9 +27,6 @@ function hasPurpose1Consent(bidderRequest) {
 }
 
 function getSize(size) {
-  // TODO remove after testing =================================================
-  utils.logWarn('+++ STEP 9: getSizes()');
-  // TODO ======================================================================
   return {
     w: parseInt(size[0]),
     h: parseInt(size[1])
@@ -40,9 +34,6 @@ function getSize(size) {
 }
 
 function transformSizes(sizes) {
-  // TODO remove after testing =================================================
-  utils.logWarn('+++ STEP 8: transformSizes()');
-  // TODO ======================================================================
   if (utils.isArray(sizes) && sizes.length === 2 && !utils.isArray(sizes[0])) {
     return [ getSize(sizes) ];
   }
@@ -50,9 +41,6 @@ function transformSizes(sizes) {
 }
 
 function extractUserSyncUrls(syncOptions, pixels) {
-  // TODO remove after testing =================================================
-  utils.logWarn('+++ STEP 10: extractUserSyncUrls()');
-  // TODO ======================================================================
   let itemsRegExp = /(img|iframe)[\s\S]*?src\s*=\s*("|')(.*?)\2/gi;
   let tagNameRegExp = /\w*(?=\s)/;
   let srcRegExp = /src=("|')(.*?)\1/;
@@ -84,9 +72,6 @@ function extractUserSyncUrls(syncOptions, pixels) {
 }
 
 function getSupportedEids(bid) {
-  // TODO remove after testing =================================================
-  utils.logWarn('+++ STEP 5: getSupportedEids');
-  // TODO ======================================================================
   if (utils.isArray(bid.userIdAsEids)) {
     return bid.userIdAsEids.filter(eid => {
       return SUPPORTED_USER_ID_SOURCES.indexOf(eid.source) !== -1;
@@ -152,7 +137,7 @@ function appendImpObject(bid, openRtbObject) {
         prebidver: PREBID_VERSION
       }
     };
-    // TODO Don't think this should be handeled here....
+
     if (!bid.params.mode || bid.params.mode === 'banner') {
       // default banner
       impObject.tagid = bid.params.banner.pos || bid.params.pos;
@@ -161,7 +146,7 @@ function appendImpObject(bid, openRtbObject) {
         mimes: ['text/html', 'text/javascript', 'application/javascript', 'image/jpg'],
         format: transformSizes(bid.sizes)
       };
-    } else if
+    }
 
     if (bid.mediaTypes.video && (bid.params.video || bid.params)) {
       impObject.tagid = bid.params.video.pos || bid.params.pos;
@@ -170,15 +155,8 @@ function appendImpObject(bid, openRtbObject) {
         mimes: bid.mediaTypes.video.mimes || ['video/mp4', 'application/javascript'],
         format: transformSizes(bid.mediaTypes.video.playerSize)
       }
-      // TODO remove after testing =================================================
-      utils.logWarn('+++ Step 10.B :: video obj created');
-      // TODO ======================================================================
-    };
+    }
     openRtbObject.imp.push(impObject);
-    // TODO remove after testing =================================================
-    utils.logWarn('+++ Step 10.C() :: bid ', bid);
-    utils.logWarn('+++ Step 10.D() :: openRtbObject: ', openRtbObject);
-    // TODO ======================================================================
   }
 };
 
@@ -199,13 +177,11 @@ export const spec = {
   supportedMediaTypes: [BANNER, VIDEO],
 
   isBidRequestValid: function(bid) {
+    // TODO Refactor validation and remove override
     // const params = bid.params;
     // return (typeof params === 'object' &&
     //     typeof params.dcn === 'string' && params.dcn.length > 0 &&
     //     typeof params.pos === 'string' && params.pos.length > 0);
-    // TODO remove after testing =================================================
-    utils.logWarn('+++ Step 1: isBidRequestValid: ', config);
-    // TODO ======================================================================
     return true;
   },
 
@@ -221,24 +197,23 @@ export const spec = {
     };
 
     requestOptions.withCredentials = hasPurpose1Consent(bidderRequest);
-    const payload = generateOpenRtbObject(bidderRequest);
 
     const filteredBidRequests = validBidRequests.filter(bid => {
       return Object.keys(bid.mediaTypes).some(item => item === BANNER || item === VIDEO);
     });
+    // TODO Log for testing: =====================
+    utils.logWarn('+++ filteredBidRequests:', filteredBidRequests);
+
+    const payload = generateOpenRtbObject(bidderRequest);
 
     if (config.getConfig('yahoo.singleRequestMode') === true) {
       filteredBidRequests.forEach(bid => {
         appendImpObject(bid, payload);
       });
-      // TODO remove after testing =================================================
-      utils.logWarn('+++ STEP 6.A singleRequestMode: filteredBidRequests: ', filteredBidRequests);
-      // TODO ======================================================================
+
       return generateServerRequest({payload, requestOptions});
     }
-    // TODO remove after testing =================================================
-    utils.logWarn('+++ STEP 6.B multipleRequest mode: filteredBidRequests: ', filteredBidRequests);
-    // TODO ======================================================================
+
     return filteredBidRequests.map(bid => {
       let payloadClone = utils.deepClone(payload);
       appendImpObject(bid, payloadClone);
@@ -247,9 +222,6 @@ export const spec = {
   },
 
   interpretResponse: function(serverResponse, bidRequest) {
-    // TODO remove after testing =================================================
-    utils.logWarn('+++ STEP 5: interpretResponse: ');
-    // TODO ======================================================================
     const response = [];
     if (!serverResponse.body || !Array.isArray(serverResponse.body.seatbid)) {
       return response;
