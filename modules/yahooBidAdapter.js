@@ -2,11 +2,10 @@ import { registerBidder } from '../src/adapters/bidderFactory.js';
 import { BANNER, VIDEO } from '../src/mediaTypes.js';
 import * as utils from '../src/utils.js';
 import { config } from '../src/config.js';
-import { version as pbjsVersion } from '../package.json';
 
 const BIDDER_CODE = 'yahoo';
 const ADAPTER_VERSION = '1.0.0';
-const PREBID_VERSION = pbjsVersion;
+const PREBID_VERSION = '$prebid.version$';
 const BID_RESPONSE_TTL = 3600;
 const DEFAULT_CURRENCY = 'USD';
 const SUPPORTED_USER_ID_SOURCES = [
@@ -80,6 +79,32 @@ function getSupportedEids(bid) {
   return [];
 }
 
+function getAdapterMode() {
+  return config.getConfig('yahoo.mode');
+};
+
+function filterBidRequestByMode(validBidRequests) {
+  const mediaTypesMode = getAdapterMode();
+  // TODO
+  utils.logWarn('+++ getConfig.yahoo.mode', mediaTypesMode);
+
+  let result = [];
+  if (mediaTypesMode == 'banner' || mediaTypesMode === 'undefined') {
+    result = validBidRequests.filter(bid => {
+      return Object.keys(bid.mediaTypes).some(item => item === BANNER);
+    });
+  } else if (mediaTypesMode == 'all') {
+    result = validBidRequests.filter(bid => {
+      return Object.keys(bid.mediaTypes).some(item => item === BANNER || item === VIDEO);
+    });
+  } else if (mediaTypesMode == 'video') {
+    result = validBidRequests.filter(bid => {
+      return Object.keys(bid.mediaTypes).some(item => item === VIDEO);
+    });
+  };
+  return result;
+};
+
 function generateOpenRtbObject(bidderRequest) {
   // TODO remove after testing =================================================
   utils.logWarn('+++ STEP 4: generateOpenRtbObject() :: bidderReques ', bidderRequest);
@@ -127,10 +152,15 @@ function appendImpObject(bid, openRtbObject) {
   // TODO remove after testing =================================================
   utils.logWarn('+++ STEP 7: appendImpObject');
   // TODO ======================================================================
+
+  const mediaTypeMode = getAdapterMode();
+
   if (openRtbObject && bid) {
     const impObject = {
       id: bid.bidId,
+      tagid: bid.params.pos,
       ext: {
+        pos: bid.params.pos,
         dfp_ad_unit_code: bid.adUnitCode,
         hb: 1,
         adapterver: ADAPTER_VERSION,
@@ -138,22 +168,34 @@ function appendImpObject(bid, openRtbObject) {
       }
     };
 
-    if (!bid.params.mode || bid.params.mode === 'banner') {
-      // default banner
-      impObject.tagid = bid.params.banner.pos || bid.params.pos;
-      impObject.ext.pos = bid.params.banner.pos || bid.params.pos;
+    if (bid.mediaTypes.banner && (mediaTypeMode === 'undefined' || mediaTypeMode === 'banner' || mediaTypeMode === 'all')) {
       impObject.banner = {
-        mimes: ['text/html', 'text/javascript', 'application/javascript', 'image/jpg'],
+        mimes: bid.mediaTypes.banner.mimes || ['text/html', 'text/javascript', 'application/javascript', 'image/jpg'],
         format: transformSizes(bid.sizes)
       };
+      if (bid.mediaTypes.banner.pos) {
+        impObject.banner.pos = bid.mediaTypes.banner.pos;
+      }
     }
 
-    if (bid.mediaTypes.video && (bid.params.video || bid.params)) {
-      impObject.tagid = bid.params.video.pos || bid.params.pos;
-      impObject.ext.pos = bid.params.video.pos || bid.params.pos;
+    if (bid.mediaTypes.video && (mediaTypeMode === 'video' || mediaTypeMode === 'all')) {
+      const playerSize = getSize(bid.mediaTypes.video.playerSize);
       impObject.video = {
         mimes: bid.mediaTypes.video.mimes || ['video/mp4', 'application/javascript'],
-        format: transformSizes(bid.mediaTypes.video.playerSize)
+        w: playerSize.w,
+        h: playerSize.h,
+        maxbitrate: bid.mediaTypes.video.maxbitrate || undefined,
+        maxduration: bid.mediaTypes.video.maxduration || undefined,
+        minduration: bid.mediaTypes.video.minduration || undefined,
+        api: bid.mediaTypes.video.api || [1, 2],
+        delivery: bid.mediaTypes.video.delivery || undefined,
+        pos: bid.mediaTypes.video.pos || undefined,
+        playbackmethod: bid.mediaTypes.video.playbackmethod || undefined,
+        placement: bid.mediaTypes.video.placement || undefined,
+        rewarded: bid.mediaTypes.video.rewarded || undefined,
+        linearity: bid.mediaTypes.video.linearity || 1,
+        protocols: bid.mediaTypes.video.protocols || [2, 5]
+
       }
     }
     openRtbObject.imp.push(impObject);
@@ -186,9 +228,10 @@ export const spec = {
   },
 
   buildRequests: function(validBidRequests, bidderRequest) {
-    // TODO remove after testing =================================================
-    utils.logWarn('+++ STEP 2: buildRequests:');
-    // TODO ======================================================================
+    // TODO
+    utils.logWarn('+++ STEP 2: validBidRequests:', validBidRequests);
+    utils.logWarn('+++ STEP 2: bidderRequest:', bidderRequest);
+
     const requestOptions = {
       contentType: 'application/json',
       customHeaders: {
@@ -197,18 +240,14 @@ export const spec = {
     };
 
     requestOptions.withCredentials = hasPurpose1Consent(bidderRequest);
+    const filteredBidRequests = filterBidRequestByMode(validBidRequests)
 
-    const filteredBidRequests = validBidRequests.filter(bid => {
-      return Object.keys(bid.mediaTypes).some(item => item === BANNER || item === VIDEO);
-    });
-
-    // TODO Log for testing: =====================
-    utils.logWarn('+++ validBidRequests:', validBidRequests);
+    // TODO
     utils.logWarn('+++ filteredBidRequests:', filteredBidRequests);
 
     const payload = generateOpenRtbObject(bidderRequest);
-    // TODO Log for testing: =====================
-    utils.logWarn('+++ generateOpenRtbObject: ', payload);
+    // TODO
+    utils.logWarn('+++ payload: ', payload);
 
     if (config.getConfig('yahoo.singleRequestMode') === true) {
       filteredBidRequests.forEach(bid => {
