@@ -201,10 +201,14 @@ export const spec = {
     const filteredBidRequests = validBidRequests.filter(bid => {
       return Object.keys(bid.mediaTypes).some(item => item === BANNER || item === VIDEO);
     });
+
     // TODO Log for testing: =====================
+    utils.logWarn('+++ validBidRequests:', validBidRequests);
     utils.logWarn('+++ filteredBidRequests:', filteredBidRequests);
 
     const payload = generateOpenRtbObject(bidderRequest);
+    // TODO Log for testing: =====================
+    utils.logWarn('+++ generateOpenRtbObject: ', payload);
 
     if (config.getConfig('yahoo.singleRequestMode') === true) {
       filteredBidRequests.forEach(bid => {
