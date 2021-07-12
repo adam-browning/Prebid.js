@@ -85,19 +85,16 @@ function getAdapterMode() {
 
 function filterBidRequestByMode(validBidRequests) {
   const mediaTypesMode = getAdapterMode();
-  // TODO
-  utils.logWarn('+++ getConfig.yahoo.mode', mediaTypesMode);
-
   let result = [];
-  if (mediaTypesMode == 'banner' || mediaTypesMode === 'undefined') {
+  if (typeof mediaTypesMode === 'undefined' || mediaTypesMode === 'banner') {
     result = validBidRequests.filter(bid => {
       return Object.keys(bid.mediaTypes).some(item => item === BANNER);
     });
-  } else if (mediaTypesMode == 'all') {
+  } else if (mediaTypesMode === 'all') {
     result = validBidRequests.filter(bid => {
       return Object.keys(bid.mediaTypes).some(item => item === BANNER || item === VIDEO);
     });
-  } else if (mediaTypesMode == 'video') {
+  } else if (mediaTypesMode === 'video') {
     result = validBidRequests.filter(bid => {
       return Object.keys(bid.mediaTypes).some(item => item === VIDEO);
     });
@@ -106,16 +103,13 @@ function filterBidRequestByMode(validBidRequests) {
 };
 
 function generateOpenRtbObject(bidderRequest) {
-  // TODO remove after testing =================================================
-  utils.logWarn('+++ STEP 4: generateOpenRtbObject() :: bidderReques ', bidderRequest);
-  // TODO ======================================================================
   if (bidderRequest) {
     return {
       id: bidderRequest.auctionId,
       imp: [],
       site: {
-        id: bidderRequest.params.dcn,
-        page: bidderRequest.refererInfo.referer
+        id: bidderRequest.bids[0].params.dcn,
+        page: bidderRequest.bids[0].params.override.page || bidderRequest.refererInfo.referer
       },
       device: {
         dnt: 0,
@@ -149,26 +143,15 @@ function generateOpenRtbObject(bidderRequest) {
 }
 
 function appendImpObject(bid, openRtbObject) {
-  // TODO remove after testing =================================================
-  utils.logWarn('+++ STEP 7: appendImpObject');
-  // TODO ======================================================================
-
   const mediaTypeMode = getAdapterMode();
 
   if (openRtbObject && bid) {
     const impObject = {
       id: bid.bidId,
       tagid: bid.params.pos,
-      ext: {
-        pos: bid.params.pos,
-        dfp_ad_unit_code: bid.adUnitCode,
-        hb: 1,
-        adapterver: ADAPTER_VERSION,
-        prebidver: PREBID_VERSION
-      }
     };
 
-    if (bid.mediaTypes.banner && (mediaTypeMode === 'undefined' || mediaTypeMode === 'banner' || mediaTypeMode === 'all')) {
+    if (bid.mediaTypes.banner && (typeof mediaTypeMode === 'undefined' || mediaTypeMode === 'banner' || mediaTypeMode === 'all')) {
       impObject.banner = {
         mimes: bid.mediaTypes.banner.mimes || ['text/html', 'text/javascript', 'application/javascript', 'image/jpg'],
         format: transformSizes(bid.sizes)
@@ -179,11 +162,11 @@ function appendImpObject(bid, openRtbObject) {
     }
 
     if (bid.mediaTypes.video && (mediaTypeMode === 'video' || mediaTypeMode === 'all')) {
-      const playerSize = getSize(bid.mediaTypes.video.playerSize);
+      const playerSize = transformSizes(bid.mediaTypes.video.playerSize);
       impObject.video = {
         mimes: bid.mediaTypes.video.mimes || ['video/mp4', 'application/javascript'],
-        w: playerSize.w,
-        h: playerSize.h,
+        w: playerSize[0].w,
+        h: playerSize[0].h,
         maxbitrate: bid.mediaTypes.video.maxbitrate || undefined,
         maxduration: bid.mediaTypes.video.maxduration || undefined,
         minduration: bid.mediaTypes.video.minduration || undefined,
@@ -198,12 +181,20 @@ function appendImpObject(bid, openRtbObject) {
 
       }
     }
+
+    impObject.ext = {
+      pos: bid.params.pos,
+      dfp_ad_unit_code: bid.adUnitCode,
+      hb: 1,
+      adapterver: ADAPTER_VERSION,
+      prebidver: PREBID_VERSION
+    };
+
     openRtbObject.imp.push(impObject);
   }
 };
 
 function generateServerRequest({payload, requestOptions}) {
-  utils.logWarn('+++ Step 11:  generateServerRequest ');
   return {
     url: config.getConfig('yahoo.endpoint') || SSP_ENDPOINT,
     method: 'POST',
@@ -219,35 +210,24 @@ export const spec = {
   supportedMediaTypes: [BANNER, VIDEO],
 
   isBidRequestValid: function(bid) {
-    // TODO Refactor validation and remove override
-    // const params = bid.params;
-    // return (typeof params === 'object' &&
-    //     typeof params.dcn === 'string' && params.dcn.length > 0 &&
-    //     typeof params.pos === 'string' && params.pos.length > 0);
-    return true;
+    const params = bid.params;
+    return (typeof params === 'object' &&
+        typeof params.dcn === 'string' && params.dcn.length > 0 &&
+        typeof params.pos === 'string' && params.pos.length > 0);
   },
 
   buildRequests: function(validBidRequests, bidderRequest) {
-    // TODO
-    utils.logWarn('+++ STEP 2: validBidRequests:', validBidRequests);
-    utils.logWarn('+++ STEP 2: bidderRequest:', bidderRequest);
-
     const requestOptions = {
       contentType: 'application/json',
       customHeaders: {
         'x-openrtb-version': '2.5'
       }
     };
-
     requestOptions.withCredentials = hasPurpose1Consent(bidderRequest);
+
     const filteredBidRequests = filterBidRequestByMode(validBidRequests)
 
-    // TODO
-    utils.logWarn('+++ filteredBidRequests:', filteredBidRequests);
-
     const payload = generateOpenRtbObject(bidderRequest);
-    // TODO
-    utils.logWarn('+++ payload: ', payload);
 
     if (config.getConfig('yahoo.singleRequestMode') === true) {
       filteredBidRequests.forEach(bid => {
